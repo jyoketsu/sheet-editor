@@ -66,8 +66,8 @@ export default function Router() {
       <BrowserRouter>
         <Routes>
           <Route path={BASE} element={<Home />}>
-            <Route path="" element={<Editor />} />
-            <Route path="preview" element={<Preview />} />
+            <Route index element={<Preview />} />
+            <Route path="editor" element={<Editor />} />
           </Route>
         </Routes>
       </BrowserRouter>

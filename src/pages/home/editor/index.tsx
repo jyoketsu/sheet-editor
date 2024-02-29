@@ -20,6 +20,7 @@ export default function Editor() {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const changed = useAppSelector((state) => state.service.changed);
   const docData = useAppSelector((state) => state.service.docData);
   const patchDataApi = useAppSelector((state) => state.service.patchDataApi);
 
@@ -34,6 +35,11 @@ export default function Editor() {
         forceCalculation: false,
         showinfobar: false,
         data: data.data,
+        hook: {
+          updated: function (operate: any) {
+            handleChange();
+          },
+        },
       };
       // @ts-ignore
       luckysheet.create(options);
@@ -45,61 +51,53 @@ export default function Editor() {
       return;
     }
     // @ts-ignore
-    let luckysheetfile = luckysheet.getluckysheetfile();
-    for (let index = 0; index < luckysheetfile.length; index++) {
-      var sheet = luckysheetfile[index];
-      if (sheet.data) {
-        // @ts-ignore
-        sheet["celldata"] = luckysheet.getGridData(sheet.data);
-      }
-    }
+    let allSheets = luckysheet.getAllSheets();
     dispatch(
       saveDoc({
         patchDataApi,
         data: {
-          title: "",
-          data: luckysheetfile,
+          data: allSheets,
         },
       })
     );
   };
 
+  const handleChange = () => {
+    dispatch(setChanged(true));
+    clearTimeout(timeout);
+    dispatch(setChanged(true));
+    timeout = setTimeout(() => {
+      handleSave();
+    }, 2000);
+  };
+
   return (
-    <Box
-      sx={{
+    <div
+      style={{
+        position: "relative",
         width: "100%",
         height: "100%",
         overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          height: "50px",
-          backgroundColor: "background.paper",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 15px",
-          boxSizing: "border-box",
-        }}
-      >
-        <Typography variant="h5" sx={{ fontWeight: 800 }}>
-          Sheet
-        </Typography>
-        <span style={{ flex: 1 }} />
-        <Button variant="contained" onClick={handleSave}>
-          {t("menu.save")}
-        </Button>
-      </Box>
-      <Box
+      <div
         id="luckysheet"
-        sx={{
-          flex: 1,
-          overflow: "hidden",
+        style={{
+          width: "100%",
+          height: "100%",
         }}
       />
-    </Box>
+      <div
+        style={{
+          position: "absolute",
+          bottom: "3px",
+          left: "15px",
+          color: "#333333",
+          fontSize: "14px",
+        }}
+      >
+        {changed ? "有更改" : "已保存"}
+      </div>
+    </div>
   );
 }

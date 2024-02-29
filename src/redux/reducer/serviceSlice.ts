@@ -89,8 +89,12 @@ export const serviceSlice = createSlice({
       }
     });
     builder.addCase(saveDoc.fulfilled, (state, action: PayloadAction<any>) => {
-      alert("保存成功！");
       state.changed = false;
+      if (action.payload.status === 200) {
+        // alert("保存成功！");
+      } else {
+        alert(action.payload.msg);
+      }
     });
   },
 });
