@@ -17,7 +17,17 @@ export default function Editor() {
     if (isEdit === "2") {
       toEdit();
     }
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
+
+  const handleMessage = (e: any) => {
+    if (e.data.eventName === "switch2edit") {
+      toEdit();
+    }
+  };
 
   useEffect(() => {
     if (docData) {
